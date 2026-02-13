@@ -8,3 +8,10 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/

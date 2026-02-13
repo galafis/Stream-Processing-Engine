@@ -1,32 +1,26 @@
 #!/usr/bin/env python3
 """
 Stream Processing Engine
-Real-time data stream processing with Apache Kafka-like functionality.
-Built with Python, asyncio, and modern streaming technologies.
+In-memory stream processing with topic-based pub/sub and data transformation.
 """
 
-import asyncio
 import json
 import time
 from datetime import datetime
 from typing import Dict, List, Callable, Any
 import uuid
-import threading
 from collections import defaultdict, deque
 
 class StreamProcessor:
     def __init__(self):
         self.topics = defaultdict(list)
         self.consumers = defaultdict(list)
-        self.producers = {}
         self.running = False
         self.metrics = {
             'messages_processed': 0,
             'topics_count': 0,
             'consumers_count': 0,
             'producers_count': 0,
-            'throughput': 0,
-            'latency': []
         }
         
     def create_topic(self, topic_name: str, partitions: int = 1):
@@ -40,7 +34,10 @@ class StreamProcessor:
         """Produce a message to a topic"""
         if topic not in self.topics:
             self.create_topic(topic)
-            
+
+        if partition < 0 or partition >= len(self.topics[topic]):
+            raise ValueError(f"Invalid partition {partition} for topic '{topic}'")
+
         timestamp = datetime.now().isoformat()
         enriched_message = {
             'id': str(uuid.uuid4()),
@@ -209,8 +206,7 @@ def demo_stream_processing():
     print("\\n=== Processor Metrics ===")
     metrics = processor.get_metrics()
     for key, value in metrics.items():
-        if key != 'latency':
-            print(f"{key}: {value}")
+        print(f"{key}: {value}")
     
     print(f"\\nAvailable topics: {processor.list_topics()}")
 
